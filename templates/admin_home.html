@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Dashboard | CivicCare – Tamil Nadu Govt</title>
+
+<!-- Bootstrap -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Font Awesome -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+:root {
+    --primary: #1f6f63;
+    --accent: #ffb703;
+    --light-bg: #f4f7f6;
+    --dark-bg: #121212;
+    --card-bg: #ffffff;
+}
+
+body {
+    background: linear-gradient(135deg, #eef4f3, #f8faf9);
+    font-family: "Segoe UI", sans-serif;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 260px;
+    height: 100vh;
+    background: var(--primary);
+    color: #fff;
+    position: fixed;
+    top: 0;
+    left: 0;
+    padding: 20px;
+}
+.sidebar h4 {
+    color: var(--accent);
+    font-weight: 600;
+}
+.sidebar a {
+    display: block;
+    padding: 12px 18px;
+    color: #eaf4f4;
+    text-decoration: none;
+    border-left: 4px solid transparent;
+    border-radius: 6px;
+    margin-bottom: 6px;
+}
+.sidebar a:hover,
+.sidebar a.active {
+    background: rgba(255,255,255,0.12);
+    border-left: 4px solid var(--accent);
+}
+
+/* Main Content */
+.main-content {
+    margin-left: 260px;
+    padding: 30px;
+}
+
+/* Header */
+.page-header {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 20px 25px;
+    box-shadow: 0 8px 22px rgba(0,0,0,0.08);
+    margin-bottom: 25px;
+}
+
+/* Cards */
+.dashboard-card {
+    background: var(--card-bg);
+    border-radius: 16px;
+    padding: 22px;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.08);
+    transition: 0.3s;
+    height: 100%;
+}
+.dashboard-card:hover {
+    transform: translateY(-5px);
+}
+
+/* Counters */
+.counter {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+/* Section Title */
+.section-title {
+    font-weight: 600;
+    color: var(--primary);
+    border-left: 5px solid var(--accent);
+    padding-left: 10px;
+    margin-bottom: 15px;
+}
+
+/* Alert */
+.alert-live {
+    background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
+    border-left: 6px solid #2e7d32;
+    border-radius: 14px;
+    padding: 16px 20px;
+    margin-bottom: 25px;
+}
+/* Enhanced Page Header */
+.page-header {
+    background: linear-gradient(
+        135deg,
+        #e8f5e9,
+        #f9fbe7
+    );
+    border-left: 6px solid #2e7d32;
+    border-radius: 16px;
+    padding: 20px 28px;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.1);
+}
+
+/* Icon Badge */
+.header-icon {
+    width: 52px;
+    height: 52px;
+    background: linear-gradient(135deg, #2e7d32, #66bb6a);
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.15);
+}
+
+/* Subtitle */
+.header-subtitle {
+    font-size: 13px;
+    color: #33691e;
+    font-weight: 500;
+}
+
+/* Govt Badge */
+.govt-badge {
+    background: linear-gradient(135deg, #fbc02d, #fff176);
+    color: #5d4037;
+    font-weight: 600;
+    padding: 8px 14px;
+    border-radius: 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+}
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <h4 class="text-center mb-4">
+        <i class="fa fa-landmark"></i> CivicCare
+        <small class="d-block fs-6">Govt. of Tamil Nadu</small>
+    </h4>
+
+    <a href="/admin_home" class="active"><i class="fa fa-gauge me-2"></i> Dashboard</a>
+    <a href="/admin_dep"><i class="fa fa-users-cog me-2"></i> Staff & Departments</a>
+    <a href="/admin_citizens"><i class="fa fa-user-check me-2"></i> Citizens</a>
+    <a href="/admin_ai"><i class="fa fa-brain me-2"></i> AI Control</a>
+    <a href="/admin_reports"><i class="fa fa-chart-line me-2"></i> Reports</a>
+
+    <hr class="text-light">
+
+    <a href="/logout" class="text-warning">
+        <i class="fa fa-sign-out-alt me-2"></i> Logout
+    </a>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main-content">
+
+    <!-- HEADER -->
+    <div class="page-header d-flex justify-content-between align-items-center">
+    <div class="d-flex align-items-center gap-3">
+        <div class="header-icon">
+            <i class="fa fa-landmark"></i>
+        </div>
+        <div>
+            <h5 class="mb-1 fw-bold text-success">
+                System Administrator Dashboard
+            </h5>
+            <small class="header-subtitle">
+                Tamil Nadu AI Civic Complaint Management System
+            </small>
+        </div>
+    </div>
+
+    <span class="badge govt-badge">
+        Govt. of Tamil Nadu
+    </span>
+</div>
+
+    <!-- LIVE ALERT -->
+    {% if live_alert > 0 %}
+    <div class="alert-live">
+        <i class="fa fa-bell me-2"></i>
+        <strong>Live Alert:</strong>
+        {{ live_alert }} high-priority complaints assigned in last 10 minutes
+    </div>
+    {% endif %}
+
+    <!-- COUNTERS -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="dashboard-card text-center">
+                <div class="counter" data-target="{{ total_complaints }}">0</div>
+                <small>Total Complaints</small>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="dashboard-card text-center">
+                <div class="counter" data-target="{{ resolved }}">0</div>
+                <small>Resolved</small>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="dashboard-card text-center">
+                <div class="counter" data-target="{{ active_departments }}">0</div>
+                <small>Active Departments</small>
+            </div>
+        </div>
+
+        
+    </div>
+
+    <!-- CHARTS -->
+    <div class="row g-4">
+        <div class="col-md-7">
+            <div class="dashboard-card">
+                <h6 class="section-title">Monthly Complaints Analysis</h6>
+                <canvas id="complaintChart" height="120"></canvas>
+            </div>
+        </div>
+
+        <div class="col-md-5">
+            <div class="dashboard-card">
+                <h6 class="section-title">AI Model Performance</h6>
+                <canvas id="aiChart" height="180"></canvas>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- JS -->
+<script>
+document.querySelectorAll('.counter').forEach(counter => {
+    const target = +counter.dataset.target;
+    let count = 0;
+    const step = target / 60;
+
+    function update() {
+        count += step;
+        if (count < target) {
+            counter.innerText = Math.ceil(count);
+            requestAnimationFrame(update);
+        } else {
+            counter.innerText = target;
+        }
+    }
+    update();
+});
+
+const months = {{ monthly_data | map(attribute='month') | list | tojson }};
+const counts = {{ monthly_data | map(attribute='count') | list | tojson }};
+
+new Chart(document.getElementById('complaintChart'), {
+    type: 'line',
+    data: {
+        labels: months,
+        datasets: [{
+            label: 'Complaints',
+            data: counts,
+            borderColor: '#1f6f63',
+            tension: 0.4,
+            fill: false
+        }]
+    }
+});
+
+new Chart(document.getElementById('aiChart'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Correct', 'Incorrect'],
+        datasets: [{
+            data: [{{ ai_accuracy }}, {{ 100 - ai_accuracy }}],
+            backgroundColor: ['#2e7d32', '#c62828']
+        }]
+    }
+});
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

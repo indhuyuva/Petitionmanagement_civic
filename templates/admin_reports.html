@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Dashboard | CivicCare – Tamil Nadu Govt</title>
+
+<!-- Bootstrap -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Font Awesome -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+:root {
+    --primary: #1f6f63;
+    --accent: #ffb703;
+    --light-bg: #f4f7f6;
+    --dark-bg: #121212;
+    --card-bg: rgba(255,255,255,0.95);
+}
+
+body {
+    background: linear-gradient(135deg, #eef4f3, #f8faf9);
+    font-family: "Segoe UI", sans-serif;
+    transition: 0.3s;
+}
+
+/* Dark Mode */
+body.dark {
+    background: var(--dark-bg);
+    color: #eaeaea;
+}
+body.dark .dashboard-card {
+    background: #1e1e1e;
+}
+body.dark .sidebar {
+    background: #0f3d35;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 260px;
+    height: 100vh;
+    background: var(--primary);
+    color: #fff;
+    position: fixed;
+}
+.sidebar h4 {
+    color: var(--accent);
+    font-weight: 600;
+}
+.sidebar a {
+    display: block;
+    padding: 12px 20px;
+    color: #eaf4f4;
+    text-decoration: none;
+    border-left: 4px solid transparent;
+}
+.sidebar a:hover,
+.sidebar a.active {
+    background: rgba(255,255,255,0.1);
+    border-left: 4px solid var(--accent);
+}
+
+/* Content */
+.content {
+    margin-left: 270px;
+    padding: 30px;
+}
+
+/* Cards */
+.dashboard-card {
+    border-radius: 16px;
+    background: var(--card-bg);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    transition: 0.35s;
+}
+.dashboard-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 18px 40px rgba(0,0,0,0.15);
+}
+
+/* Icon */
+.icon-box {
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), #ffd166);
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+}
+
+/* Section Title */
+.section-title {
+    font-weight: 600;
+    color: var(--primary);
+    border-left: 5px solid var(--accent);
+    padding-left: 10px;
+    margin-bottom: 20px;
+}
+
+/* Alert */
+.alert-live {
+    background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
+    border-left: 6px solid #2e7d32;
+    border-radius: 12px;
+}
+
+/* Counter */
+.counter {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.ai-report {
+    background: #f8f9fb;
+    padding: 25px;
+    border-radius: 10px;
+}
+
+/* Section Titles */
+.section-title {
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+.accepted-title { color: #198754; }
+.rejected-title { color: #dc3545; }
+
+/* AI Card */
+.ai-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    margin-bottom: 20px;
+    transition: transform .2s ease;
+}
+.ai-card:hover {
+    transform: translateY(-4px);
+}
+
+/* Card Header */
+.ai-card-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.case-id {
+    font-weight: 600;
+    color: #555;
+}
+
+/* Body */
+.ai-card-body {
+    padding: 16px;
+}
+.meta {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+.priority {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+.priority.high { background: #fdecea; color: #dc3545; }
+.priority.medium { background: #fff4e5; color: #fd7e14; }
+.priority.low { background: #e7f5ff; color: #0d6efd; }
+
+/* Description */
+.description {
+    font-size: 14px;
+    color: #444;
+}
+
+/* Image */
+.image-box img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+}
+
+/* AI Result */
+.ai-result {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+}
+.confidence {
+    background: #e9f7ef;
+    color: #198754;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+}
+.confidence.danger {
+    background: #fdecea;
+    color: #dc3545;
+}
+
+/* Reject Reason */
+.reject-reason {
+    margin-top: 10px;
+    padding: 10px;
+    background: #fff5f5;
+    border-left: 4px solid #dc3545;
+    font-size: 14px;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar p-3">
+    <h4 class="text-center mb-4">
+        <i class="fa fa-landmark"></i> CivicCare
+        <small class="d-block fs-6">Govt. of Tamil Nadu</small>
+    </h4>
+
+    <a href="/admin_home" ><i class="fa fa-gauge me-2"></i> Dashboard</a>
+    <a href="/admin_dep"><i class="fa fa-users-cog me-2"></i> Staff & Departments</a>
+    <a href="/admin_citizens" ><i class="fa fa-user-check me-2"></i> Citizens</a>
+    <a href="/admin_ai" ><i class="fa fa-brain me-2"></i> AI Control</a>
+    <a href="/admin_reports" class="active"><i class="fa fa-chart-line me-2"></i> Reports</a>
+
+    <hr>
+
+    <a href="/logout" class="text-warning">
+        <i class="fa fa-sign-out-alt me-2"></i> Logout
+    </a>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="content ai-report">
+
+    <div class="report-header mb-4">
+        <h3>
+            <i class="fa fa-robot me-2 text-primary"></i>
+            AI Complaint Validation Reports
+        </h3>
+        <p class="text-muted small">
+            Automated verification and confidence analysis by AI engine
+        </p>
+    </div>
+
+    <!-- ACCEPTED COMPLAINTS -->
+    <h5 class="section-title accepted-title mt-4">
+        <i class="fa fa-check-circle me-2"></i>Accepted Complaints
+    </h5>
+
+    <div class="row">
+    {% for complaint in accepted %}
+        <div class="col-md-6">
+            <div class="ai-card accepted">
+                <div class="ai-card-header">
+                    <span class="badge bg-success">ACCEPTED</span>
+                    <span class="case-id">Case #{{ complaint.case_id }}</span>
+                </div>
+
+                <div class="ai-card-body">
+                    <div class="meta">
+                        <span class="priority {{ complaint.priority|lower }}">
+                            {{ complaint.priority }} Priority
+                        </span>
+                        <span class="dept">
+                            <i class="fa fa-building me-1"></i>{{ complaint.department }}
+                        </span>
+                    </div>
+
+                    <p><strong>Category:</strong> {{ complaint.category }}</p>
+                    <p class="description">{{ complaint.description }}</p>
+
+                    <div class="image-box">
+                        <img src="{{ url_for('static', filename='uploads/images/' ~ complaint.image) }}"
+                             alt="Complaint Image">
+                    </div>
+
+                    <div class="ai-result">
+                        <span class="label">
+                            AI Label: <strong>{{ complaint.ai_predicted_label }}</strong>
+                        </span>
+                        <span class="confidence">
+                            {{ complaint.ai_confidence*100|round(2) }}%
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <p class="text-muted">No complaints have been accepted yet.</p>
+    {% endfor %}
+    </div>
+
+    <!-- REJECTED COMPLAINTS -->
+    <h5 class="section-title rejected-title mt-5">
+        <i class="fa fa-times-circle me-2"></i>Rejected Complaints
+    </h5>
+
+    <div class="row">
+    {% for complaint in rejected %}
+        <div class="col-md-6">
+            <div class="ai-card rejected">
+                <div class="ai-card-header">
+                    <span class="badge bg-danger">REJECTED</span>
+                    <span class="case-id">Case #{{ complaint.case_id }}</span>
+                </div>
+
+                <div class="ai-card-body">
+                    <div class="meta">
+                        <span class="priority {{ complaint.priority|lower }}">
+                            {{ complaint.priority }} Priority
+                        </span>
+                        <span class="dept">
+                            <i class="fa fa-building me-1"></i>{{ complaint.department }}
+                        </span>
+                    </div>
+
+                    <p><strong>Category:</strong> {{ complaint.category }}</p>
+                    <p class="description">{{ complaint.description }}</p>
+
+                    <div class="image-box">
+                        <img src="{{ url_for('static', filename='uploads/images/' ~ complaint.image) }}"
+                             alt="Complaint Image">
+                    </div>
+
+                    <div class="ai-result">
+                        <span class="label">
+                            AI Label: <strong>{{ complaint.ai_predicted_label }}</strong>
+                        </span>
+                        <span class="confidence danger">
+                            {{ complaint.ai_confidence*100|round(2) }}%
+                        </span>
+                    </div>
+
+                    <div class="reject-reason">
+                        <strong>Reason:</strong> {{ complaint.ai_reject_reason }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <p class="text-muted">No complaints have been rejected yet.</p>
+    {% endfor %}
+    </div>
+
+</div>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

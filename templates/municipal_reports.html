@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Municipal Assigned Cases | CivicCare</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+<style>
+:root {
+    --primary: #1f6f63;
+    --accent: #ffb703;
+    --card-bg: #ffffff;
+}
+
+body { background:#f4f7f6; font-family:Segoe UI,sans-serif; }
+
+/* ===== SIDEBAR (UNCHANGED) ===== */
+.sidebar {
+    width: 260px;
+    height: 100vh;
+    background: var(--primary);
+    color: #fff;
+    position: fixed;
+    padding: 20px 10px;
+}
+.sidebar h4 { color: var(--accent); font-weight: 600; margin-bottom: 30px; }
+.sidebar a {
+    display:block;
+    padding:12px 20px;
+    color:#eaf4f4;
+    text-decoration:none;
+    border-left:4px solid transparent;
+}
+.sidebar a:hover, .sidebar a.active {
+    background: rgba(255,255,255,0.1);
+    border-left:4px solid var(--accent);
+}
+
+/* ===== CONTENT AREA (ENHANCED) ===== */
+.content {
+    margin-left:270px;
+    padding:35px;
+}
+
+/* Header card */
+.page-header {
+    background: linear-gradient(135deg, #1f6f63, #2a9d8f);
+    color:#fff;
+    padding:22px 28px;
+    border-radius:14px;
+    box-shadow:0 10px 25px rgba(0,0,0,.12);
+    margin-bottom:30px;
+}
+.page-header h3 { margin:0; font-weight:600; }
+.page-header p { margin:0; opacity:.9 }
+
+/* Summary card */
+.summary-card {
+    background:#fff;
+    border-radius:14px;
+    padding:22px;
+    text-align:center;
+    border-left:6px solid #2a9d8f;
+    box-shadow:0 6px 18px rgba(0,0,0,.08);
+}
+.summary-card h6 { color:#6c757d; margin-bottom:6px }
+.summary-card h2 { color:#1f6f63; font-weight:700 }
+
+/* Report card */
+.report-card {
+    border-radius:16px;
+    overflow:hidden;
+    box-shadow:0 8px 22px rgba(0,0,0,.1);
+}
+
+/* Table */
+.report-table thead {
+    background:#e9f5f3;
+}
+.report-table th {
+    font-size:13px;
+    text-transform:uppercase;
+    letter-spacing:.5px;
+    color:#1f6f63;
+}
+.report-table td {
+    vertical-align:middle;
+}
+.report-table tbody tr:hover {
+    background:#f1fbf9;
+}
+
+/* Status badge */
+.badge-completed {
+    background:#2a9d8f;
+    padding:6px 10px;
+    font-size:12px;
+}
+
+/* Print button */
+.print-btn {
+    border-radius:20px;
+    padding:6px 16px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <h4><i class="fa fa-landmark"></i> CivicCare</h4>
+    <a href="/municipal_dashboard"><i class="fa fa-gauge me-2"></i> Dashboard</a>
+    <a href="/municipal_assigned_case"><i class="fa fa-check-circle me-2"></i> Assigned Complaints</a>
+    <a href="/municipal_reports" class="active"><i class="fa fa-chart-line me-2"></i> Reports</a>
+    <hr>
+    <a href="/logout" class="text-warning"><i class="fa fa-sign-out-alt me-2"></i> Logout</a>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+    <!-- HEADER -->
+    <div class="page-header d-flex justify-content-between align-items-center">
+        <div>
+            <h3>Municipal Completion Report</h3>
+            <p>Resolved & approved complaints handled by municipality</p>
+        </div>
+        <button class="btn btn-light print-btn" onclick="window.print()">
+            <i class="fa fa-print me-1"></i> Print
+        </button>
+    </div>
+
+    <!-- SUMMARY -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="summary-card">
+                <h6>Total Completed Cases</h6>
+                <h2>{{ cases|length }}</h2>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="card report-card">
+        <div class="card-body p-0">
+
+            <table class="table table-hover report-table mb-0">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Case ID</th>
+                        <th>Category</th>
+                        <th>Department</th>
+                        <th>Priority</th>
+                        <th>Completion Notes</th>
+                        <th>Completed On</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                {% for c in cases %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td class="fw-semibold">{{ c.case_id }}</td>
+                        <td>{{ c.category }}</td>
+                        <td>{{ c.department }}</td>
+
+                        <td>
+                            {% if c.priority == 'High' %}
+                                <span class="badge bg-danger">High</span>
+                            {% elif c.priority == 'Medium' %}
+                                <span class="badge bg-warning text-dark">Medium</span>
+                            {% else %}
+                                <span class="badge bg-success">Low</span>
+                            {% endif %}
+                        </td>
+
+                        <td class="text-muted">
+                            {{ c.inspection_notes[:60] }}{% if c.inspection_notes|length > 60 %}...{% endif %}
+                        </td>
+
+                        <td>{{ c.updated_at }}</td>
+
+                        <td>
+                            <span class="badge badge-completed">
+                                ✔ Completed
+                            </span>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center py-5 text-muted">
+                            <i class="fa fa-folder-open fs-2"></i>
+                            <p class="mt-2 mb-0">
+                                No completed cases available for this municipality.
+                            </p>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+
+            </table>
+
+        </div>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

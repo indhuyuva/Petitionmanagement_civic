@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AI Training Control | CivicCare</title>
+
+<!-- Bootstrap -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Font Awesome -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+<style>
+:root {
+    --primary: #1f6f63;
+    --accent: #ffb703;
+    --card-bg: rgba(255,255,255,0.96);
+}
+
+body {
+    background: linear-gradient(135deg, #eef4f3, #f8faf9);
+    font-family: "Segoe UI", sans-serif;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 260px;
+    height: 100vh;
+    background: var(--primary);
+    color: #fff;
+    position: fixed;
+}
+.sidebar h4 {
+    color: var(--accent);
+    font-weight: 600;
+}
+.sidebar a {
+    display: block;
+    padding: 12px 20px;
+    color: #eaf4f4;
+    text-decoration: none;
+    border-left: 4px solid transparent;
+}
+.sidebar a:hover,
+.sidebar a.active {
+    background: rgba(255,255,255,0.1);
+    border-left: 4px solid var(--accent);
+}
+/* Content */
+.content {
+    margin-left: 280px;
+    padding: 35px;
+}
+
+/* Cards */
+.dashboard-card {
+    background: var(--card-bg);
+    border-radius: 18px;
+    padding: 28px;
+    box-shadow: 0 14px 40px rgba(0,0,0,0.08);
+    margin-bottom: 35px;
+}
+
+/* Section title */
+.section-title {
+    font-weight: 700;
+    color: var(--primary);
+    border-left: 5px solid var(--accent);
+    padding-left: 12px;
+    margin-bottom: 20px;
+}
+
+/* Pipeline steps */
+.pipeline-step {
+    text-align: center;
+    padding: 20px;
+    border-radius: 14px;
+    background: #f7fbfa;
+    box-shadow: inset 0 0 0 1px #e0ece9;
+}
+.pipeline-step i {
+    font-size: 36px;
+    color: var(--primary);
+    margin-bottom: 10px;
+}
+
+/* Buttons */
+.btn-ai {
+    background: linear-gradient(135deg, var(--primary), #2c9a8c);
+    border: none;
+    color: #fff;
+    font-weight: 600;
+    padding: 14px 26px;
+    border-radius: 30px;
+}
+.btn-ai:hover {
+    opacity: 0.9;
+}
+</style>
+</head>
+
+<body>
+
+<!-- ================= SIDEBAR ================= -->
+<div class="sidebar p-3">
+    <h4 class="text-center mb-4">
+        <i class="fa fa-landmark"></i> CivicCare
+        <small class="d-block fs-6">Govt. of Tamil Nadu</small>
+    </h4>
+
+    <a href="/admin_home" ><i class="fa fa-gauge me-2"></i> Dashboard</a>
+    <a href="/admin_dep"><i class="fa fa-users-cog me-2"></i> Staff & Departments</a>
+    <a href="/admin_citizens" ><i class="fa fa-user-check me-2"></i> Citizens</a>
+    <a href="/admin_ai" class="active"><i class="fa fa-brain me-2"></i> AI Control</a>
+    <a href="/admin_reports"><i class="fa fa-chart-line me-2"></i> Reports</a>
+
+    <hr>
+
+    <a href="/logout" class="text-warning">
+        <i class="fa fa-sign-out-alt me-2"></i> Logout
+    </a>
+</div>
+<!-- ================= MAIN CONTENT ================= -->
+<div class="content">
+
+    <!-- HEADER -->
+    <div class="mb-4">
+        <h4 class="fw-bold text-success">
+            <i class="fa fa-brain me-2"></i> AI Training & Classification Control
+        </h4>
+        <small class="text-muted">
+            Manage image-based AI model for civic complaint classification
+        </small>
+    </div>
+
+    <!-- ===== AI PIPELINE ===== -->
+    <div class="dashboard-card">
+        <h6 class="section-title">AI Training Pipeline</h6>
+
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="pipeline-step">
+                    <i class="fa fa-images"></i>
+                    <h6 class="fw-bold mt-2">Dataset</h6>
+                    <small>Upload civic issue images</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="pipeline-step">
+                    <i class="fa fa-filter"></i>
+                    <h6 class="fw-bold mt-2">Preprocessing</h6>
+                    <small>Resize, grayscale, binary</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="pipeline-step">
+                    <i class="fa fa-project-diagram"></i>
+                    <h6 class="fw-bold mt-2">Segmentation</h6>
+                    <small>Region-based extraction</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="pipeline-step">
+                    <i class="fa fa-robot"></i>
+                    <h6 class="fw-bold mt-2">Training</h6>
+                    <small>AI model learning</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== TRAIN MODEL ===== -->
+    <div class="dashboard-card text-center">
+        <h6 class="section-title">Train AI Model</h6>
+        <p class="text-muted mb-4">
+            Train the AI model using categorized civic complaint images
+            (Road Damage, Water Issues, Garbage, Drainage, Street Light).
+        </p>
+
+        <form method="post" action="/train">
+            <button type="submit" class="btn btn-ai btn-lg">
+                <i class="fa fa-robot me-2"></i> Start AI Training
+            </button>
+        </form>
+    </div>
+
+    <!-- ===== VIEW RESULTS ===== -->
+    <div class="dashboard-card text-center">
+        <h6 class="section-title">Classification Results</h6>
+        <p class="text-muted mb-4">
+            View classified images and training analytics after model execution.
+        </p>
+
+        <a href="/classify" class="btn btn-outline-success btn-lg">
+            <i class="fa fa-chart-pie me-2"></i> View AI Results
+        </a>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

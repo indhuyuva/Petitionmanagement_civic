@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Citizen Dashboard | CivicCare</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: #f4f6f9;
+        }
+
+        /* Navbar */
+        .main-nav {
+            background: linear-gradient(90deg, #2d6a4f, #2ba361);
+        }
+
+        .main-nav .nav-link {
+            color: #fff !important;
+            font-weight: 500;
+        }
+
+        .navbar-brand {
+            color: #fff !important;
+            font-size: 22px;
+        }
+        .main-nav {
+    background: linear-gradient(90deg, #1b7f5c, #2ea44f);
+}
+
+.main-nav .nav-link {
+    color: #fff !important;
+    margin: 0 6px;
+    border-radius: 6px;
+}
+
+.main-nav .nav-link:hover,
+.main-nav .nav-link.active {
+    background: rgba(255,255,255,0.2);
+}
+
+
+        .form-card {
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        }
+
+        .form-title {
+            border-left: 6px solid #198754;
+            padding-left: 12px;
+            font-weight: 600;
+        }
+
+        .upload-box {
+            border: 2px dashed #ced4da;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            background: #fafafa;
+        }
+
+        .upload-box i {
+            font-size: 2rem;
+            color: #198754;
+        }
+
+        .required::after {
+            content: " *";
+            color: red;
+        }
+
+        footer {
+            background: lch(78.71% 81.56 81.89);
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg main-nav shadow-sm">
+    <div class="container-fluid">
+
+        <!-- Brand -->
+        <a class="navbar-brand fw-bold" href="{{ url_for('citizen_home') }}">
+            Civic<span class="text-success">Care</span>
+        </a>
+
+        <!-- Mobile Toggle -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#citizenNav" aria-controls="citizenNav"
+                aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Center Navigation -->
+        <div class="collapse navbar-collapse" id="citizenNav">
+            <ul class="navbar-nav mx-auto text-center">
+
+                <li class="nav-item">
+                    <a class="nav-link fw-semibold" href="{{ url_for('citizen_home') }}">
+                        <i class="bi bi-house-door me-1"></i> Home
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link fw-semibold" href="{{ url_for('register_complaint') }}">
+                        <i class="bi bi-megaphone me-1"></i> Raise Complaint
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link fw-semibold" href="{{ url_for('track_complaint') }}">
+                        <i class="bi bi-search me-1"></i> Track Complaint
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link fw-semibold" href="{{ url_for('my_complaints') }}">
+                        <i class="bi bi-list-check me-1"></i> My Complaints
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link fw-semibold" href="{{ url_for('citizen_profile') }}">
+                        <i class="bi bi-person-lines-fill me-1"></i> Profile
+                    </a>
+                </li>
+
+            </ul>
+
+            <!-- Right User Info -->
+            <div class="d-flex align-items-center gap-3">
+                <span class="text-white fw-semibold">
+                    <i class="bi bi-person-circle me-1"></i>
+                    {{ session['username'] }}
+                </span>
+
+                <a href="{{ url_for('logout') }}" class="btn btn-light btn-sm px-3">
+                    Logout
+                </a>
+            </div>
+        </div>
+
+    </div>
+</nav>
+
+
+
+<!-- MAIN CONTENT -->
+ <div class="container py-5">
+
+    <!-- PAGE TITLE -->
+    <h4 class="form-title mb-4">Raise New Complaint</h4>
+
+    <div class="container mt-3">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    <strong>
+                        {% if category == 'success' %}✔ Success!{% elif category == 'danger' %}❌ Error!{% elif category == 'warning' %}⚠ Warning!{% else %}ℹ Info:{% endif %}
+                    </strong>
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
+
+    <form method="POST" enctype="multipart/form-data">
+
+        <div class="form-card p-4 mb-4">
+
+            <!-- COMPLAINT DETAILS -->
+            <div class="row g-4">
+
+                <div class="col-md-6">
+                    <label class="form-label required">Complaint Category</label>
+                    <select class="form-select" name="category" required>
+                        <option value="">Select Category</option>
+                        <option value="Road Damage">Road Damage</option>
+                            <option value="Street Light">Street Light</option>
+                            <option value="Garbage / Sanitation">Garbage / Sanitation</option>
+                            <option value="Water Supply">Water Supply</option>
+                            <option value="Drainage">Drainage</option>
+                            <!-- <option value="Other">Other</option> -->
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label required">Department</label>
+                    <select class="form-select" name="department" required>
+                        <option value="">Select Department</option>
+                        <option>Public Works</option>
+                        <option>Sanitation</option>
+                        <option>Water Board</option>
+                        <option>Electrical</option>
+                        <option>Municipal Office</option>
+                    </select>
+                </div>
+
+                <div class="col-md-12">
+                    <label class="form-label required">Complaint Description</label>
+                    <textarea class="form-control" name="description" rows="4"
+                              placeholder="Describe the issue clearly with landmarks or details..."
+                              required></textarea>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- LOCATION DETAILS -->
+        <div class="form-card p-4 mb-4">
+            <h6 class="mb-3 fw-semibold">Location Details</h6>
+
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <label class="form-label required">Area / Locality</label>
+                    <input type="text" class="form-control" name="area" required>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label required">Ward Number</label>
+                    <input type="text" class="form-control" name="ward" required>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label required">City</label>
+                    <input type="text" class="form-control" name="city" value="Tamil Nadu" required>
+                </div>
+            </div>
+        </div>
+
+        <!-- PRIORITY -->
+        <div class="form-card p-4 mb-4">
+            <h6 class="mb-3 fw-semibold">Complaint Priority</h6>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <select class="form-select" name="priority" required>
+                        <option value="">Select Priority</option>
+                        <option>Low</option>
+                        <option>Medium</option>
+                        <option>High</option>
+                        <option>Emergency</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- UPLOAD SECTION -->
+        <div class="form-card p-4 mb-4">
+            <h6 class="mb-3 fw-semibold">Upload Evidence</h6>
+
+            <div class="row g-4">
+
+                <!-- IMAGE UPLOAD (REQUIRED) -->
+                <div class="col-md-6">
+                    <div class="upload-box">
+                        <i class="bi bi-image"></i>
+                        <p class="mb-1 fw-semibold">Upload Image (Required)</p>
+                        <small class="text-muted">JPG / PNG (Max 5MB)</small>
+                        <input type="file" class="form-control mt-2" name="image"
+                               accept="image/*" required>
+                    </div>
+                </div>
+
+                <!-- VIDEO UPLOAD (OPTIONAL) -->
+                <div class="col-md-6">
+                    <div class="upload-box">
+                        <i class="bi bi-camera-video"></i>
+                        <p class="mb-1 fw-semibold">Upload Video (Optional)</p>
+                        <small class="text-muted">MP4 / MOV (Max 20MB)</small>
+                        <input type="file" class="form-control mt-2" name="video"
+                               accept="video/*">
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- SUBMIT -->
+        <div class="text-end">
+            <button type="submit" class="btn btn-success px-5">
+                <i class="bi bi-send-fill me-1"></i> Submit Complaint
+            </button>
+        </div>
+
+    </form>
+
+</div>
+
+
+<!-- FOOTER -->
+<footer class="text-center py-3 mt-5">
+    © Government of Tamil Nadu | CivicCare Complaint Management System
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

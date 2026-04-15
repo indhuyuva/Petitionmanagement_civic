@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Citizen Dashboard | CivicCare</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: #f4f6f9;
+        }
+
+        /* Navbar */
+        .main-nav {
+            background: linear-gradient(90deg, #2d6a4f, #2ba361);
+        }
+
+        .main-nav .nav-link {
+            color: #fff !important;
+            font-weight: 500;
+        }
+
+        .navbar-brand {
+            color: #fff !important;
+            font-size: 22px;
+        }
+        .main-nav {
+    background: linear-gradient(90deg, #1b7f5c, #2ea44f);
+}
+
+.main-nav .nav-link {
+    color: #fff !important;
+    margin: 0 6px;
+    border-radius: 6px;
+}
+
+.main-nav .nav-link:hover,
+.main-nav .nav-link.active {
+    background: rgba(255,255,255,0.2);
+}
+.profile-header {
+            background: linear-gradient(90deg, #198754, #20c997);
+            color: #fff;
+            border-radius: 10px;
+        }
+
+        .profile-avatar {
+            width: 90px;
+            height: 90px;
+            background: #fff;
+            color: #198754;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+        }
+
+        .section-title {
+            font-weight: 600;
+            border-left: 5px solid #198754;
+            padding-left: 10px;
+            margin-bottom: 20px;
+        }
+
+        .form-control[readonly] {
+            background-color: #f8f9fa;
+        }
+        footer {
+            background: lch(78.71% 81.56 81.89);
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg main-nav shadow-sm">
+    <div class="container-fluid">
+
+        <!-- Brand -->
+        <a class="navbar-brand fw-bold" href="{{ url_for('citizen_home') }}">
+            Civic<span class="text-success">Care</span>
+        </a>
+
+        <!-- Mobile Toggle -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#citizenNav" aria-controls="citizenNav"
+                aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Center Navigation -->
+        <div class="collapse navbar-collapse" id="citizenNav">
+            <ul class="navbar-nav mx-auto text-center">
+
+                <li class="nav-item">
+                    <a class="nav-link fw-semibold" href="{{ url_for('citizen_home') }}">
+                        <i class="bi bi-house-door me-1"></i> Home
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link fw-semibold" href="{{ url_for('register_complaint') }}">
+                        <i class="bi bi-megaphone me-1"></i> Raise Complaint
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link fw-semibold" href="{{ url_for('track_complaint') }}">
+                        <i class="bi bi-search me-1"></i> Track Complaint
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link fw-semibold" href="{{ url_for('my_complaints') }}">
+                        <i class="bi bi-list-check me-1"></i> My Complaints
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link fw-semibold" href="{{ url_for('citizen_profile') }}">
+                        <i class="bi bi-person-lines-fill me-1"></i> Profile
+                    </a>
+                </li>
+
+            </ul>
+
+            <!-- Right User Info -->
+            <div class="d-flex align-items-center gap-3">
+                <span class="text-white fw-semibold">
+                    <i class="bi bi-person-circle me-1"></i>
+                    {{ session['username'] }}
+                </span>
+
+                <a href="{{ url_for('logout') }}" class="btn btn-light btn-sm px-3">
+                    Logout
+                </a>
+            </div>
+        </div>
+
+    </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+ <div class="container py-5">
+
+    <!-- PROFILE HEADER -->
+    <div class="profile-header p-4 mb-4">
+        <div class="row align-items-center">
+            <div class="col-md-2 text-center mb-3 mb-md-0">
+                <div class="profile-avatar mx-auto">
+                    <i class="bi bi-person-fill"></i>
+                </div>
+            </div>
+            <div class="col-md-10">
+                <h4 class="mb-1">{{ citizen.full_name }}</h4>
+                <p class="mb-0">
+                    Citizen ID: <strong>{{ citizen.citizen_id }}</strong><br>
+                    Registered Mobile: {{ citizen.mobile }}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- PERSONAL DETAILS -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h5 class="section-title">Personal Details</h5>
+
+            <form method="post">
+                <div class="row g-3">
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Full Name</label>
+                        <input type="text" class="form-control"
+                               name="full_name"
+                               value="{{ citizen.full_name }}" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Aadhaar Number</label>
+                        <input type="text" class="form-control"
+                               value="XXXXXXXX{{ citizen.aadhar[-4:] }}"
+                               readonly>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Mobile Number</label>
+                        <input type="text" class="form-control"
+                               value="{{ citizen.mobile }}"
+                               readonly>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Email ID</label>
+                        <input type="email" class="form-control"
+                               name="email"
+                               value="{{ citizen.email }}">
+                    </div>
+
+                </div>
+        </div>
+    </div>
+
+    <!-- ADDRESS DETAILS -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h5 class="section-title">Address Details</h5>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Door No / Street</label>
+                    <input type="text" class="form-control"
+                           name="address"
+                           value="{{ citizen.address }}" required>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Area / Locality</label>
+                    <input type="text" class="form-control"
+                           name="area"
+                           value="{{ citizen.area }}" required>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">City / Municipality</label>
+                    <input type="text" class="form-control"
+                           name="city"
+                           value="{{ citizen.city }}" required>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Pincode</label>
+                    <input type="text" class="form-control"
+                           name="pincode"
+                           value="{{ citizen.pincode }}" required>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- UPDATE BUTTON -->
+    <div class="text-center">
+        <button class="btn btn-success px-5">
+            <i class="bi bi-check-circle me-1"></i> Update Profile
+        </button>
+    </div>
+
+    </form>
+
+</div>
+
+
+<!-- FOOTER -->
+<footer class="text-center py-3 mt-5">
+    © Government of Tamil Nadu | CivicCare Complaint Management System
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

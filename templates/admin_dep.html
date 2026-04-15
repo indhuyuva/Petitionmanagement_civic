@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Dashboard | CivicCare – Tamil Nadu Govt</title>
+
+<!-- Bootstrap -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Font Awesome -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+<style>
+:root {
+    --primary: #1f6f63;
+    --accent: #ffb703;
+    --card-bg: rgba(255,255,255,0.95);
+}
+body {
+    background: linear-gradient(135deg, #eef4f3, #f8faf9);
+    font-family: "Segoe UI", sans-serif;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 260px;
+    height: 100vh;
+    background: var(--primary);
+    color: #fff;
+    position: fixed;
+}
+.sidebar h4 { color: var(--accent); font-weight: 600; }
+.sidebar a {
+    display: block;
+    padding: 12px 20px;
+    color: #eaf4f4;
+    text-decoration: none;
+    border-left: 4px solid transparent;
+}
+.sidebar a:hover,
+.sidebar a.active {
+    background: rgba(255,255,255,0.1);
+    border-left: 4px solid var(--accent);
+}
+
+/* Content */
+.content {
+    margin-left: 270px;
+    padding: 30px;
+}
+
+/* Cards */
+.dashboard-card {
+    border-radius: 16px;
+    background: var(--card-bg);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    margin-bottom: 30px;
+}
+
+/* Section Title */
+.section-title {
+    font-weight: 600;
+    color: var(--primary);
+    border-left: 5px solid var(--accent);
+    padding-left: 10px;
+    margin-bottom: 20px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar p-3">
+    <h4 class="text-center mb-4">
+        <i class="fa fa-landmark"></i> CivicCare
+        <small class="d-block fs-6">Govt. of Tamil Nadu</small>
+    </h4>
+
+    <a href="/admin_home"><i class="fa fa-gauge me-2"></i> Dashboard</a>
+    <a href="/admin_dep" class="active"><i class="fa fa-users-cog me-2"></i> Staff & Departments</a>
+    <a href="/admin_citizens"><i class="fa fa-user-check me-2"></i> Citizens</a>
+    <a href="/admin_ai"><i class="fa fa-brain me-2"></i> AI Control</a>
+    <a href="/admin_reports"><i class="fa fa-chart-line me-2"></i> Reports</a>
+
+    <hr>
+    <a href="/logout" class="text-warning"><i class="fa fa-sign-out-alt me-2"></i> Logout</a>
+</div>
+
+<!-- MAIN CONTENT -->
+ 
+<div class="content">
+
+    <!-- HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4>Departments & Staff Management</h4>
+            <small class="text-muted">Admin can create users and assign roles</small>
+        </div>
+        <div>
+            <button class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                <i class="fa fa-user-plus"></i> Add Staff / Officer
+            </button>
+            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addDeptModal">
+                <i class="fa fa-plus"></i> Add Department
+            </button>
+        </div>
+    </div>
+    <div class="container mt-3">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    <strong>
+                        {% if category == 'success' %}✔ Success!{% elif category == 'danger' %}❌ Error!{% elif category == 'warning' %}⚠ Warning!{% else %}ℹ Info:{% endif %}
+                    </strong>
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
+
+    <!-- DEPARTMENTS TABLE -->
+    <div class="dashboard-card p-4 mb-4">
+    <h5 class="section-title text-success">
+        <i class="fa fa-building me-2"></i>Departments
+    </h5>
+
+    <table class="table table-bordered table-striped text-center align-middle">
+        <thead class="table-success">
+            <tr>
+                <th>#</th>
+                <th>Department Name</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for d in departments %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ d.dept_name }}</td>
+                <td>
+                    <a href="{{ url_for('delete_department', dept_id=d.dept_id) }}"
+                       class="btn btn-sm btn-danger"
+                       onclick="return confirm('Delete this department?');">
+                        <i class="fa fa-trash"></i>
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<div class="dashboard-card p-4 mb-4">
+    <h5 class="section-title text-primary mb-1">
+    <i class="fa fa-user-tie me-2"></i>Department Heads & Chief Officers
+    </h5>
+    <p class="text-muted small ms-4">
+        Common for all Municipal departments
+    </p>
+    
+
+    <table class="table table-bordered table-striped text-center align-middle">
+        <thead class="table-primary">
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Role</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in staff_rows %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ s.name }}</td>
+                <td>
+                    {% if s.role == 'Department Head' %}
+                        <span class="badge bg-success">Department Head</span>
+                    {% else %}
+                        <span class="badge bg-primary">Chief Officer</span>
+                    {% endif %}
+                </td>
+                <td>{{ s.phone }}</td>
+                <td>{{ s.email }}</td>
+                <td>
+                    <a href="javascript:void(0)"
+                        class="btn btn-sm btn-info me-1 edit-btn"
+                        data-staff-id="{{ s.staff_id }}"
+                        data-bs-toggle="modal"
+                        data-bs-target="#editUserModal">
+                            <i class="fa fa-edit"></i>
+                        </a>
+                    <a href="{{ url_for('delete_staff', staff_id=s.staff_id) }}"
+                       class="btn btn-sm btn-danger"
+                       onclick="return confirm('Delete this staff member?');">
+                        <i class="fa fa-trash"></i>
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<div class="dashboard-card p-4">
+    <h5 class="section-title text-warning">
+        <i class="fa fa-users me-2"></i>Municipal Officers
+    </h5>
+
+    <table class="table table-bordered table-striped text-center align-middle">
+        <thead class="table-warning">
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Department</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>Username</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in municipal_staff %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ s.name }}</td>
+                <td>{{ s.dept_name }}</td>
+                <td>{{ s.phone }}</td>
+                <td>{{ s.email }}</td>
+                <td>{{ s.username }}</td>
+                <td>
+                    <a href="javascript:void(0)"
+                        class="btn btn-sm btn-info me-1 edit-btn"
+                        data-staff-id="{{ s.staff_id }}"
+                        data-bs-toggle="modal"
+                        data-bs-target="#editUserModal">
+                            <i class="fa fa-edit"></i>
+                        </a>
+                    <a href="{{ url_for('delete_staff', staff_id=s.staff_id) }}"
+                       class="btn btn-sm btn-danger"
+                       onclick="return confirm('Delete this officer?');">
+                        <i class="fa fa-trash"></i>
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+</div>
+
+<!-- ADD DEPARTMENT MODAL -->
+<div class="modal fade" id="addDeptModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="/add_department">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Department</h5>
+                    <button class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <label>Department Name</label>
+                    <input class="form-control" name="name" required>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-success">Save</button>
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ADD STAFF / OFFICER MODAL -->
+<div class="modal fade" id="addUserModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <form method="POST" action="/add_staff">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Staff / Officer</h5>
+                    <button class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body row">
+                    <div class="col-md-6 mb-3">
+                        <label>Name</label>
+                        <input class="form-control" name="name" required>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label>Email</label>
+                        <input class="form-control" name="email">
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label>Phone</label>
+                        <input class="form-control" name="phone">
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label>Role</label>
+                        <select class="form-control" name="role" required>
+                            <option value="">-- Select Role --</option>
+                            <option value="Department Head">Department Head</option>
+                            <option value="Chief Officer">Chief Officer</option>
+                            <option value="Municipal Officer">Municipal Officer</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label>Department (if applicable)</label>
+                        <select class="form-control" name="department_id">
+                            <option value="">-- None --</option>
+                            {% for d in departments %}
+                            <option value="{{ d.dept_id }}">{{ d.dept_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label>Username</label>
+                        <input class="form-control" name="username" required>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label>Password</label>
+                        <input class="form-control" name="password" required>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-success">Create User</button>
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+<!--Staff Edit-->
+<div class="modal fade" id="editUserModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+
+      <form method="POST" action="{{ url_for('edit_staff') }}">
+        <!-- HIDDEN STAFF ID -->
+        <input type="hidden" name="staff_id" id="edit_staff_id">
+
+        <div class="modal-header">
+          <h5 class="modal-title">Edit Staff / Officer</h5>
+          <button class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body row">
+
+          <div class="col-md-6 mb-3">
+            <label>Name</label>
+            <input class="form-control" name="name" id="edit_name" required>
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label>Email</label>
+            <input class="form-control" name="email" id="edit_email">
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label>Phone</label>
+            <input class="form-control" name="phone" id="edit_phone">
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label>Role</label>
+            <select class="form-control" name="role" id="edit_role" required>
+              <option value="Department Head">Department Head</option>
+              <option value="Chief Officer">Chief Officer</option>
+              <option value="Municipal Officer">Municipal Officer</option>
+            </select>
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label>Department</label>
+            <select class="form-control" name="dept_id" id="edit_dept">
+              <option value="">-- None --</option>
+              {% for d in departments %}
+              <option value="{{ d.dept_id }}">{{ d.dept_name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label>Username</label>
+            <input class="form-control" name="username" id="edit_username" required>
+          </div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-primary">Update</button>
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+</div>
+<script>
+document.querySelectorAll('.edit-btn').forEach(btn => {
+  btn.addEventListener('click', function () {
+    const staffId = this.dataset.staffId;
+
+    fetch(`/get_staff/${staffId}`)
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('edit_staff_id').value = data.staff_id;
+        document.getElementById('edit_name').value = data.name;
+        document.getElementById('edit_email').value = data.email || '';
+        document.getElementById('edit_phone').value = data.phone || '';
+        document.getElementById('edit_role').value = data.role;
+        document.getElementById('edit_dept').value = data.dept_id || '';
+        document.getElementById('edit_username').value = data.username;
+      });
+  });
+});
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

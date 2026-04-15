@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Citizen Dashboard | CivicCare</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: #f4f6f9;
+        }
+
+        /* Navbar */
+        .main-nav {
+            background: linear-gradient(90deg, #2d6a4f, #2ba361);
+        }
+
+        .main-nav .nav-link {
+            color: #fff !important;
+            font-weight: 500;
+        }
+
+        .navbar-brand {
+            color: #fff !important;
+            font-size: 22px;
+        }
+
+        .profile-card {
+        background: linear-gradient(135deg, #ffffff, #c3cfc8);
+        border-radius: 14px;
+        border-left: 6px solid #198754;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        transition: 0.3s;
+    }
+
+    .profile-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 26px rgba(0,0,0,0.12);
+    }
+
+    .profile-avatar {
+        width: 80px;
+        height: 80px;
+        background: rgba(25, 135, 84, 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: auto;
+    }
+
+    .profile-avatar i {
+        font-size: 3rem;
+        color: lch(79.12% 74.55 98.64);
+    }
+
+    .profile-name {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: #212529;
+    }
+
+    .profile-meta span {
+        display: inline-block;
+        margin-right: 18px;
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+
+    .profile-badge {
+        background: #198754;
+        color: #fff;
+        font-size: 0.75rem;
+        padding: 4px 10px;
+        border-radius: 20px;
+        margin-left: 8px;
+    }
+        /* Stat Cards */
+        .stat-card {
+            border-radius: 12px;
+            color: #fff;
+            padding: 20px;
+            transition: 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-6px);
+        }
+
+        .bg-total { background: linear-gradient(135deg, #1d3557, #457b9d); }
+        .bg-pending { background: linear-gradient(135deg, #ff8800, #ffb703); }
+        .bg-resolved { background: linear-gradient(135deg, #2d6a4f, #52b788); }
+
+        /* Action Cards */
+        .action-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: 0.3s;
+        }
+
+        .action-card:hover {
+            transform: translateY(-8px);
+        }
+
+        /* Section title */
+        .section-title {
+            font-weight: 600;
+            border-left: 6px solid #2d6a4f;
+            padding-left: 10px;
+        }
+        /* Section title */
+.section-title {
+    font-weight: 600;
+    color: #1f6f63;
+    border-left: 5px solid #fbc02d;
+    padding-left: 10px;
+}
+
+
+/* Table styling */
+.complaint-table thead {
+    background: linear-gradient(135deg, #e8f5e9, #f9fbe7);
+}
+
+.complaint-table th {
+    color: #2e7d32;
+    font-size: 14px;
+    text-transform: uppercase;
+}
+
+.complaint-table td {
+    font-size: 14px;
+}
+
+/* Status badges */
+.status-resolved {
+    background: #2e7d32;
+    color: #fff;
+}
+
+.status-progress {
+    background: #f9a825;
+    color: #3e2723;
+}
+
+.status-rejected {
+    background: #ff0000;
+    color: #3e2723;
+}
+
+.status-pending {
+    background: #c98a8a;
+    color: #fff;
+}
+
+/* Priority badges */
+.priority-high {
+    background: #d32f2f;
+    color: #fff;
+}
+
+.priority-medium {
+    background: #fbc02d;
+    color: #3e2723;
+}
+
+.priority-low {
+    background: #388e3c;
+    color: #fff;
+}
+
+/* Hover effect */
+.complaint-table tbody tr:hover {
+    background-color: #f1f8e9;
+}
+.stat-sm {
+    padding: 10px 8px;
+    border-radius: 10px;
+}
+
+.stat-sm i {
+    font-size: 18px;
+    margin-bottom: 4px;
+}
+
+.stat-sm h6 {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 2px 0;
+}
+
+.stat-sm small {
+    font-size: 12px;
+    opacity: 0.85;
+}
+
+        footer {
+            background: lch(78.71% 81.56 81.89);
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg main-nav">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold" href="#">CivicCare</a>
+
+        <div class="collapse navbar-collapse show">
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item"><a class="nav-link fw-bold" href="#">Citizen Dashboard</a></li>
+            </ul>
+
+            <span class="text-white me-3">
+                <i class="bi bi-person-circle"></i>
+                {{ session['username'] }}
+            </span>
+            <a href="{{ url_for('logout') }}" class="btn btn-light btn-sm">Logout</a>
+        </div>
+    </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<div class="container py-4">
+
+    <!-- PROFILE SUMMARY -->
+    <div class="profile-card p-4 mb-4">
+    <div class="row align-items-center">
+
+        <!-- Avatar -->
+        <div class="col-md-2 text-center mb-3 mb-md-0">
+            <div class="profile-avatar">
+                <i class="bi bi-person-fill"></i>
+            </div>
+        </div>
+
+        <!-- Info -->
+        <div class="col-md-10">
+            <div class="d-flex align-items-center mb-1">
+                <h5 class="profile-name mb-0">
+                    {{ citizen.full_name }}
+                </h5>
+                <span class="profile-badge">Citizen</span>
+            </div>
+
+            <div class="profile-meta mt-2">
+                <span>
+                    <i class="bi bi-envelope-fill text-success"></i>
+                    {{ citizen.email }}
+                </span>
+
+                <span>
+                    <i class="bi bi-telephone-fill text-success"></i>
+                    {{ citizen.mobile }}
+                </span>
+
+                <span>
+                    <i class="bi bi-geo-alt-fill text-success"></i>
+                    {{ citizen.area }}
+                </span>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+    <!-- STATISTICS -->
+    <div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="stat-card stat-sm bg-total text-center">
+            <i class="bi bi-file-earmark-text"></i>
+            <h6>{{ total_complaint }}</h6>
+            <small>Total</small>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="stat-card stat-sm bg-pending text-center">
+            <i class="bi bi-hourglass-split"></i>
+            <h6>{{ pending_complaint }}</h6>
+            <small>Pending</small>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="stat-card stat-sm bg-resolved text-center">
+            <i class="bi bi-check-circle"></i>
+            <h6>{{ resolved_complaint }}</h6>
+            <small>Resolved</small>
+        </div>
+    </div>
+</div>
+
+    <!-- ACTIONS -->
+    <h5 class="section-title mb-3">Quick Actions</h5>
+
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="card action-card text-center p-3">
+                <i class="bi bi-megaphone fs-1 text-warning"></i>
+                <h6>Raise Complaint</h6>
+                <a href="{{ url_for('register_complaint') }}" class="btn btn-warning btn-sm">Create</a>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card action-card text-center p-3">
+                <i class="bi bi-search fs-1 text-primary"></i>
+                <h6>Track Complaint</h6>
+                <a href="{{ url_for('track_complaint') }}" class="btn btn-primary btn-sm">Track</a>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card action-card text-center p-3">
+                <i class="bi bi-person-lines-fill fs-1 text-success"></i>
+                <h6>Update Profile</h6>
+                <a href="{{ url_for('citizen_profile') }}" class="btn btn-success btn-sm">Edit</a>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card action-card text-center p-3">
+                <i class="bi bi-list-check fs-1 text-danger"></i>
+                <h6>My Complaints</h6>
+                <a href="{{ url_for('my_complaints') }}" class="btn btn-danger btn-sm">View</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- RECENT COMPLAINTS -->
+    <h5 class="section-title mb-3">Recent Complaints</h5>
+
+    <div class="table-responsive bg-white p-4 shadow rounded-4">
+
+    <h6 class="mb-3 section-title">
+        <i class="fa fa-file-circle-check me-2 text-success"></i>
+        Complaint Overview
+    </h6>
+
+    <table class="table table-hover align-middle complaint-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Case ID</th>
+                <th>Category</th>
+                <th>Department</th>
+                <th>Status</th>
+                <th>Priority</th>
+                <th>AI Verified</th>
+            </tr>
+        </thead>
+
+        <tbody>
+        {% for c in complaints %}
+            <tr>
+                <td>{{ loop.index }}</td>
+
+                <td class="fw-semibold text-primary">
+                    {{ c.case_id }}
+                </td>
+
+                <td>{{ c.category }}</td>
+
+                <td>{{ c.department }}</td>
+
+                <td>
+                    {% if c.status|int == 2 %}
+                        <span class="badge status-resolved">Resolved</span>
+                    {% elif c.status|int == 1 %}
+                        <span class="badge status-progress">In Progress</span>
+                    {% elif c.status|int == -1 %}
+                        <span class="badge status-rejected">Rejected</span>
+                    {% else %}
+                        <span class="badge status-pending">Pending</span>
+                    {% endif %}
+                </td>
+
+                <td>
+                    {% if c.priority == 'High' %}
+                        <span class="badge priority-high">High</span>
+                    {% elif c.priority == 'Medium' %}
+                        <span class="badge priority-medium">Medium</span>
+                    {% else %}
+                        <span class="badge priority-low">Low</span>
+                    {% endif %}
+                </td>
+
+                <td>
+                    {% if c.ai_verified == 1 %}
+                        <span class="badge bg-success">Yes</span>
+                    {% else %}
+                        <span class="badge bg-danger">NO</span>
+                    {% endif %}
+                </td>
+
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="8" class="text-center text-muted py-4">
+                    No complaints available
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+</div>
+
+<!-- FOOTER -->
+<footer class="text-center py-3 mt-5">
+    © Government of Tamil Nadu | CivicCare Complaint Management System
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

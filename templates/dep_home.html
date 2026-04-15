@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Department Head Dashboard | CivicCare</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+<style>
+:root{
+    --primary:#1f6f63;
+    --accent:#ffb703;
+    --bg:#f4f7f6;
+    --card:#ffffff;
+}
+body{
+    background:var(--bg);
+    font-family:"Segoe UI",sans-serif;
+}
+.sidebar{
+    width:260px;height:100vh;background:var(--primary);
+    color:#fff;position:fixed;padding:20px 10px;
+}
+.sidebar h4{color:var(--accent);font-weight:600;margin-bottom:30px;}
+.sidebar a{
+    display:block;padding:12px 20px;color:#eaf4f4;
+    text-decoration:none;border-left:4px solid transparent;
+}
+.sidebar a:hover,.sidebar a.active{
+    background:rgba(255,255,255,0.12);
+    border-left:4px solid var(--accent);
+}
+.content{margin-left:270px;padding:30px;}
+.stat-card{
+    background:var(--card);border-radius:14px;
+    padding:20px;box-shadow:0 8px 20px rgba(0,0,0,.08);
+}
+.stat-title{font-size:14px;color:#6c757d;}
+.stat-value{font-size:26px;font-weight:700;}
+.dashboard-card{
+    background:var(--card);border-radius:16px;
+    padding:20px;box-shadow:0 8px 20px rgba(0,0,0,.08);
+}
+.badge-high{background:#dc3545;}
+.badge-medium{background:#fd7e14;}
+.badge-low{background:#198754;}
+.action-btn{margin-right:5px;}
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <h4><i class="fa fa-building-columns"></i> CivicCare</h4>
+    <a href="/dep_home" class="active"><i class="fa fa-gauge me-2"></i> Dashboard</a>
+    <a href="/dep_officers"><i class="fa fa-users-gear me-2"></i> Officers</a>
+    <a href="/dep_report"><i class="fa fa-chart-line me-2"></i> Reports</a>
+    <hr>
+    <a href="/logout" class="text-warning">
+        <i class="fa fa-sign-out-alt me-2"></i> Logout
+    </a>
+</div>
+
+<!-- MAIN -->
+<div class="content">
+
+<div class="mb-4">
+    <h3 class="fw-bold">
+        Welcome, {{ head_name }} 👋
+        <small class="text-muted fs-6 d-block mt-1">
+            Department Head – Municipality Administration
+        </small>
+    </h3>
+    <p class="text-muted mb-0">
+        Monitor, review, and approve municipality-wide complaint resolutions.
+    </p>
+</div>
+<div class="container mt-3">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    <strong>
+                        {% if category == 'success' %}✔ Success!{% elif category == 'danger' %}❌ Error!{% elif category == 'warning' %}⚠ Warning!{% else %}ℹ Info:{% endif %}
+                    </strong>
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
+<!-- STATS -->
+<div class="row g-4 mb-4">
+<div class="col-md-3">
+    <div class="stat-card">
+        <i class="fa fa-folder-open text-primary"></i>
+        <div class="stat-title mt-2">Total Complaints</div>
+        <div class="stat-value">{{ total }}</div>
+    </div>
+</div>
+
+<div class="col-md-3">
+    <div class="stat-card">
+        <i class="fa fa-triangle-exclamation text-danger"></i>
+        <div class="stat-title mt-2">High Priority</div>
+        <div class="stat-value">{{ high_priority }}</div>
+    </div>
+</div>
+
+<div class="col-md-3">
+    <div class="stat-card">
+        <i class="fa fa-clock text-warning"></i>
+        <div class="stat-title mt-2">Pending Approval</div>
+        <div class="stat-value">{{ pending_approval }}</div>
+    </div>
+</div>
+
+<div class="col-md-3">
+    <div class="stat-card">
+        <i class="fa fa-arrow-up text-danger"></i>
+        <div class="stat-title mt-2">Escalated Cases</div>
+        <div class="stat-value">{{ escalated }}</div>
+    </div>
+</div>
+</div>
+
+<!-- TABLE -->
+<div class="dashboard-card">
+<h5 class="fw-bold mb-3">All Department Complaints</h5>
+
+<table class="table table-hover align-middle">
+<thead class="table-light">
+<tr>
+<th>#</th>
+<th>Case ID</th>
+<th>Category</th>
+<th>Priority</th>
+<th>Assigned Officer</th>
+<th>Status</th>
+<th>Municipal Update</th>
+<th>Actions</th>
+</tr>
+</thead>
+
+<tbody>
+{% for c in complaints %}
+<tr>
+<td>{{ loop.index }}</td>
+<td>{{ c.case_id }}</td>
+<td>{{ c.category }}</td>
+
+<td>
+<span class="badge 
+{% if c.priority=='High' %}badge-high
+{% elif c.priority=='Medium' %}badge-medium
+{% else %}badge-low{% endif %}">
+{{ c.priority }}
+</span>
+</td>
+
+<td>{{ c.officer_name or 'Unassigned' }}</td>
+
+<td>
+{% if c.status == 4 %}
+<span class="badge bg-warning">Resolved (Waiting Approval)</span>
+{% elif c.status == 6 %}
+<span class="badge bg-danger">Escalated</span>
+{% elif c.status == 5 %}
+<span class="badge bg-success">Approved</span>
+{% else %}
+<span class="badge bg-secondary">In Progress</span>
+{% endif %}
+</td>
+
+<td>
+{% if c.inspection_notes %}
+<button class="btn btn-outline-primary btn-sm"
+        onclick="viewUpdate(
+            '{{ c.case_id }}',
+            `{{ c.inspection_notes }}`,
+            '{{ c.resolution_image }}'
+        )">
+<i class="fa fa-eye"></i> View
+</button>
+{% else %}
+<span class="text-muted">No Update</span>
+{% endif %}
+</td>
+
+<td>
+{% if (c.status == 1 or c.status==3) and c.work_status == 'Resolved' %}
+<form method="post" action="{{ url_for('approve_complaint', id=c.id) }}" class="d-inline">
+<button class="btn btn-success btn-sm">
+<i class="fa fa-check"></i> Solve
+</button>
+</form>
+
+<button class="btn btn-secondary btn-sm"
+        data-bs-toggle="modal"
+        data-bs-target="#reassign{{ c.id }}">
+<i class="fa fa-share"></i> Reassign
+</button>
+{% else %}
+<span class="text-muted">—</span>
+{% endif %}
+</td>
+</tr>
+
+<!-- REASSIGN MODAL -->
+<div class="modal fade" id="reassign{{ c.id }}">
+<div class="modal-dialog modal-dialog-centered">
+<div class="modal-content">
+<form method="post" action="{{ url_for('reassign_complaint', id=c.id) }}">
+<div class="modal-header">
+<h5>Reassign Complaint – {{ c.case_id }}</h5>
+<button class="btn-close" data-bs-dismiss="modal"></button>
+</div>
+
+<div class="modal-body">
+<select class="form-select mb-3" name="staff_id" required>
+<option value="">Select Officer</option>
+{% for s in staff %}
+<option value="{{ s.staff_id }}">{{ s.name }}</option>
+{% endfor %}
+</select>
+
+<textarea class="form-control"
+          name="remarks"
+          placeholder="Reason for reassignment"
+          required></textarea>
+</div>
+
+<div class="modal-footer">
+<button type="submit" class="btn btn-warning">Reassign</button>
+</div>
+</form>
+</div>
+</div>
+</div>
+
+{% endfor %}
+</tbody>
+</table>
+</div>
+<div class="modal fade" id="viewUpdateModal">
+<div class="modal-dialog modal-lg modal-dialog-centered">
+<div class="modal-content">
+
+<div class="modal-header">
+<h5 class="modal-title">Municipal Inspection Update</h5>
+<button class="btn-close" data-bs-dismiss="modal"></button>
+</div>
+
+<div class="modal-body">
+<p><strong>Case ID:</strong> <span id="vCase"></span></p>
+<p><strong>Inspection Notes:</strong></p>
+<p id="vNotes" class="text-muted"></p>
+
+<img id="vImage" class="img-fluid rounded d-none">
+</div>
+
+</div>
+</div>
+</div>
+
+</div>
+<script>
+function viewUpdate(caseId, notes, image){
+    document.getElementById("vCase").innerText = caseId;
+    document.getElementById("vNotes").innerText = notes;
+
+    const img = document.getElementById("vImage");
+    if(image){
+        img.src = "/static/uploads/resolution/" + image;
+        img.classList.remove("d-none");
+    } else {
+        img.classList.add("d-none");
+    }
+
+    new bootstrap.Modal(document.getElementById("viewUpdateModal")).show();
+}
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

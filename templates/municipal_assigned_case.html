@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Municipal Assigned Cases | CivicCare</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+<style>
+    :root {
+    --primary: #1f6f63;
+    --accent: #ffb703;
+    --card-bg: #ffffff;
+}
+
+body { background:#f4f7f6; font-family:Segoe UI,sans-serif; }
+.sidebar {
+    width: 260px;
+    height: 100vh;
+    background: var(--primary);
+    color: #fff;
+    position: fixed;
+    padding: 20px 10px;
+}
+.sidebar h4 { color: var(--accent); font-weight: 600; margin-bottom: 30px; }
+.sidebar a {
+    display:block;
+    padding:12px 20px;
+    color:#eaf4f4;
+    text-decoration:none;
+    border-left:4px solid transparent;
+}
+.sidebar a:hover, .sidebar a.active {
+    background: rgba(255,255,255,0.1);
+    border-left:4px solid var(--accent);
+}
+.content { margin-left:270px; padding:30px }
+.card { border-radius:14px; box-shadow:0 8px 20px rgba(0,0,0,.08) }
+.thumb { width:60px; height:60px; object-fit:cover; border-radius:6px; cursor:pointer }
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <h4><i class="fa fa-landmark"></i> CivicCare</h4>
+    <a href="/municipal_dashboard" >
+        <i class="fa fa-gauge me-2"></i> Dashboard
+    </a>
+    <a href="/municipal_assigned_case" class="active"><i class="fa fa-check-circle me-2"></i> Assigned Complaints</a>
+    <a href="/municipal_reports"><i class="fa fa-chart-line me-2"></i> Reports</a>
+    <hr>
+    <a href="/logout" class="text-warning">
+        <i class="fa fa-sign-out-alt me-2"></i> Logout
+    </a>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+<h3 class="fw-bold mb-3">Welcome, {{ mname }}</h3>
+<p class="text-muted">Municipal Assigned Complaints</p>
+
+<div class="container mt-3">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    <strong>
+                        {% if category == 'success' %}✔ Success!{% elif category == 'danger' %}❌ Error!{% elif category == 'warning' %}⚠ Warning!{% else %}ℹ Info:{% endif %}
+                    </strong>
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
+<!-- Assigned Case-->
+<div class="card p-4 shadow-sm">
+
+    <!-- TABLE TITLE -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold mb-0">
+            <i class="fa fa-briefcase text-primary me-2"></i>
+            Assigned Cases
+        </h5>
+    </div>
+
+    <table class="table table-hover align-middle">
+
+        <thead class="table-light">
+            <tr>
+                <th>#</th>
+                <th>Case ID</th>
+                <th>Category</th>
+                <th>Description</th>
+                <th>Image</th>
+                <th>Work Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+
+        <tbody>
+        {% if complaints %}
+            {% for c in complaints %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ c.case_id }}</td>
+                <td>{{ c.category }}</td>
+                <td>{{ c.description[:40] }}...</td>
+
+                <td>
+                {% if c.image %}
+                    <img src="{{ url_for('static', filename='uploads/images/' ~ c.image) }}"
+                         class="thumb"
+                         onclick="openImage(this.src)">
+                {% else %}
+                    <span class="text-muted">-</span>
+                {% endif %}
+                </td>
+
+                <td>
+                    <span class="badge bg-info">
+                        {{ c.work_status or "Pending" }}
+                    </span>
+                </td>
+
+                <td>
+                {% if c.status != 2 %}
+                    <button class="btn btn-primary btn-sm"
+                            data-bs-toggle="modal"
+                            data-bs-target="#update{{ c.case_id }}">
+                        <i class="fa fa-clipboard-check"></i> Update
+                    </button>
+                {% else %}
+                    <span class="badge bg-success">Case Closed</span>
+                {% endif %}
+                </td>
+            </tr>
+
+            <!-- UPDATE MODAL -->
+            <div class="modal fade" id="update{{ c.case_id }}">
+                <div class="modal-dialog modal-lg modal-dialog-centered">
+                    <div class="modal-content">
+
+                        <div class="modal-header">
+                            <h5>Update Case – {{ c.case_id }}</h5>
+                            <button class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+
+                        <form method="POST"
+                              action="{{ url_for('municipal_update_case', case_id=c.case_id) }}"
+                              enctype="multipart/form-data">
+
+                            <div class="modal-body">
+                                <textarea class="form-control mb-3"
+                                          name="inspection_notes"
+                                          placeholder="Inspection notes..."
+                                          required></textarea>
+
+                                <select class="form-select mb-3" name="work_status" required>
+                                    <option>Pending</option>
+                                    <option>In Progress</option>
+                                    <option>Resolved</option>
+                                </select>
+
+                                <input type="file" class="form-control" name="resolution_image">
+                            </div>
+
+                            <div class="modal-footer">
+                                <button class="btn btn-success">
+                                    <i class="fa fa-paper-plane me-1"></i> Submit Update
+                                </button>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <!-- NO DATA STATE -->
+            <tr>
+                <td colspan="7" class="text-center py-5 text-muted">
+                    <i class="fa fa-folder-open fa-2x mb-2"></i><br>
+                    No assigned cases found
+                </td>
+            </tr>
+        {% endif %}
+        </tbody>
+
+    </table>
+</div>
+<br>
+{% if reassign %}
+<div class="card p-4 shadow-sm">
+
+    <!-- TABLE TITLE -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold mb-0">
+            <i class="fa fa-briefcase text-primary me-2"></i>
+           Re Assigned Cases
+        </h5>
+    </div>
+
+    <table class="table table-hover align-middle">
+
+        <thead class="table-light">
+            <tr>
+                <th>#</th>
+                <th>Case ID</th>
+                <th>Category</th>
+                <th>Description</th>
+                <th>Resolution Image</th>
+                <th>Remarks</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+
+        <tbody>
+        {% if reassign %}
+            {% for c in reassign %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ c.case_id }}</td>
+                <td>{{ c.category }}</td>
+                <td>{{ c.description[:40] }}...</td>
+
+                <td>
+                {% if c.image %}
+                    <img src="{{ url_for('static', filename='uploads/resolution/' ~ c.resolution_image) }}"
+                         class="thumb"
+                         onclick="openImage(this.src)">
+                {% else %}
+                    <span class="text-muted">-</span>
+                {% endif %}
+                </td>
+
+                <td>
+                    {% if c.remarks %}
+                        <a href="#"
+                        class="text-primary"
+                        data-bs-toggle="modal"
+                        data-bs-target="#remarksModal{{ c.case_id }}">
+                            {{ c.remarks[:30] }}{% if c.remarks|length > 30 %}...{% endif %}
+                        </a>
+                    {% else %}
+                        <span class="text-muted">-</span>
+                    {% endif %}
+                </td>
+
+                <td>
+                {% if c.status != 2 %}
+                    <button class="btn btn-primary btn-sm"
+                            data-bs-toggle="modal"
+                            data-bs-target="#update{{ c.case_id }}">
+                        <i class="fa fa-clipboard-check"></i> Update
+                    </button>
+                {% else %}
+                    <span class="badge bg-success">Case Closed</span>
+                {% endif %}
+                </td>
+            </tr>
+
+            <!-- UPDATE MODAL -->
+            <div class="modal fade" id="update{{ c.case_id }}">
+                <div class="modal-dialog modal-lg modal-dialog-centered">
+                    <div class="modal-content">
+
+                        <div class="modal-header">
+                            <h5>Update Case – {{ c.case_id }}</h5>
+                            <button class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+
+                        <form method="POST"
+                              action="{{ url_for('municipal_update_case', case_id=c.case_id) }}"
+                              enctype="multipart/form-data">
+
+                            <div class="modal-body">
+                                <textarea class="form-control mb-3"
+                                          name="inspection_notes"
+                                          placeholder="Inspection notes..."
+                                          required></textarea>
+
+                                <select class="form-select mb-3" name="work_status" required>
+                                    <option>Pending</option>
+                                    <option>In Progress</option>
+                                    <option>Resolved</option>
+                                </select>
+
+                                <input type="file" class="form-control" name="resolution_image">
+                            </div>
+
+                            <div class="modal-footer">
+                                <button class="btn btn-success">
+                                    <i class="fa fa-paper-plane me-1"></i> Submit Update
+                                </button>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" id="remarksModal{{ c.case_id }}">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content">
+
+                        <div class="modal-header">
+                            <h5 class="modal-title">
+                                <i class="fa fa-comment-dots me-2"></i> Remarks
+                            </h5>
+                            <button class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+
+                        <div class="modal-body">
+                            <p class="mb-0">{{ c.remarks }}</p>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <!-- NO DATA STATE -->
+            <tr>
+                <td colspan="7" class="text-center py-5 text-muted">
+                    <i class="fa fa-folder-open fa-2x mb-2"></i><br>
+                    No re assigned cases found
+                </td>
+            </tr>
+        {% endif %}
+        </tbody>
+
+    </table>
+</div>
+{% endif %}
+</div>
+
+<!-- IMAGE MODAL -->
+<div class="modal fade" id="imgModal">
+<div class="modal-dialog modal-dialog-centered modal-lg">
+<div class="modal-content">
+<div class="modal-body text-center">
+<img id="imgView" class="img-fluid rounded">
+</div>
+</div>
+</div>
+</div>
+
+<script>
+function openImage(src){
+document.getElementById("imgView").src = src;
+new bootstrap.Modal(document.getElementById("imgModal")).show();
+}
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

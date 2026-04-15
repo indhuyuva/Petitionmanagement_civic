@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Dashboard | CivicCare – Tamil Nadu Govt</title>
+
+<!-- Bootstrap -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Font Awesome -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+:root {
+    --primary: #1f6f63;
+    --accent: #ffb703;
+    --light-bg: #f4f7f6;
+    --dark-bg: #121212;
+    --card-bg: rgba(255,255,255,0.95);
+}
+
+body {
+    background: linear-gradient(135deg, #eef4f3, #f8faf9);
+    font-family: "Segoe UI", sans-serif;
+    transition: 0.3s;
+}
+
+/* Dark Mode */
+body.dark {
+    background: var(--dark-bg);
+    color: #eaeaea;
+}
+body.dark .dashboard-card {
+    background: #1e1e1e;
+}
+body.dark .sidebar {
+    background: #0f3d35;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 260px;
+    height: 100vh;
+    background: var(--primary);
+    color: #fff;
+    position: fixed;
+}
+.sidebar h4 {
+    color: var(--accent);
+    font-weight: 600;
+}
+.sidebar a {
+    display: block;
+    padding: 12px 20px;
+    color: #eaf4f4;
+    text-decoration: none;
+    border-left: 4px solid transparent;
+}
+.sidebar a:hover,
+.sidebar a.active {
+    background: rgba(255,255,255,0.1);
+    border-left: 4px solid var(--accent);
+}
+
+/* Content */
+.content {
+    margin-left: 270px;
+    padding: 30px;
+}
+
+/* Cards */
+.dashboard-card {
+    border-radius: 16px;
+    background: var(--card-bg);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    transition: 0.35s;
+}
+.dashboard-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 18px 40px rgba(0,0,0,0.15);
+}
+
+/* Icon */
+.icon-box {
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), #ffd166);
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+}
+
+/* Section Title */
+.section-title {
+    font-weight: 600;
+    color: var(--primary);
+    border-left: 5px solid var(--accent);
+    padding-left: 10px;
+    margin-bottom: 20px;
+}
+
+/* Alert */
+.alert-live {
+    background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
+    border-left: 6px solid #2e7d32;
+    border-radius: 12px;
+}
+
+/* Counter */
+.counter {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--primary);
+}
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar p-3">
+    <h4 class="text-center mb-4">
+        <i class="fa fa-landmark"></i> CivicCare
+        <small class="d-block fs-6">Govt. of Tamil Nadu</small>
+    </h4>
+
+    <a href="/admin_home" ><i class="fa fa-gauge me-2"></i> Dashboard</a>
+    <a href="/admin_dep"><i class="fa fa-users-cog me-2"></i> Staff & Departments</a>
+    <a href="/admin_citizens" class="active"><i class="fa fa-user-check me-2"></i> Citizens</a>
+    <a href="/admin_ai"><i class="fa fa-brain me-2"></i> AI Control</a>
+    <a href="/admin_reports"><i class="fa fa-chart-line me-2"></i> Reports</a>
+
+    <hr>
+
+    <a href="/logout" class="text-warning">
+        <i class="fa fa-sign-out-alt me-2"></i> Logout
+    </a>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="content">
+
+  <!-- HEADER -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+          <h4>Citizen Management</h4>
+          <small class="text-muted">View all registered citizens</small>
+      </div>
+  </div>
+  <div class="container mt-3">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    <strong>
+                        {% if category == 'success' %}✔ Success!{% elif category == 'danger' %}❌ Error!{% elif category == 'warning' %}⚠ Warning!{% else %}ℹ Info:{% endif %}
+                    </strong>
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
+  <!-- CITIZEN LIST -->
+  <div class="dashboard-card p-4 mb-4">
+      <h6 class="section-title">Citizen List</h6>
+      <table class="table table-striped table-bordered">
+          <thead class="table-success">
+              <tr>
+                  <th>#</th>
+                  <th>Full Name</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>Aadhar Number</th>
+                  <th>Actions</th>
+              </tr>
+          </thead>
+          <tbody>
+            
+              <!-- Flask/Python dynamic loop -->
+              {% for citizen in citizens %}
+              <tr>
+                  <td>{{ loop.index }}</td>
+                  <td>{{ citizen.full_name }}</td>
+                  <td>{{ citizen.email }}</td>
+                  <td>{{ citizen.mobile }}</td>
+                  <td>{{ citizen.aadhar }}</td>
+                  <td>
+                      
+                      <a href="{{ url_for('delete_citizen', citizen_id=citizen.id) }}" class="btn btn-warning btn-sm">
+                          <i class="fa fa-trash me-1"></i> Delete
+                      </a>
+                  </td>
+              </tr>
+              {% endfor %}
+          </tbody>
+      </table>
+  </div>
+
+</div>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

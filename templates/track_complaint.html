@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Citizen Dashboard | CivicCare</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: #f4f6f9;
+        }
+
+        /* Navbar */
+        .main-nav {
+            background: linear-gradient(90deg, #2d6a4f, #2ba361);
+        }
+
+        .main-nav .nav-link {
+            color: #fff !important;
+            font-weight: 500;
+        }
+
+        .navbar-brand {
+            color: #fff !important;
+            font-size: 22px;
+        }
+        .main-nav {
+    background: linear-gradient(90deg, #1b7f5c, #2ea44f);
+}
+
+.track-card {
+            border: none;
+            border-radius: 10px;
+        }
+
+        .status-badge {
+            font-size: 0.9rem;
+            padding: 6px 12px;
+        }
+
+        .timeline {
+            border-left: 3px solid #198754;
+            padding-left: 20px;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -11px;
+            top: 4px;
+            width: 14px;
+            height: 14px;
+            background: #198754;
+            border-radius: 50%;
+        }
+        .card {
+    animation: fadeIn 0.4s ease-in;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.list-group-item {
+    border-left: 4px solid transparent;
+}
+
+.text-success {
+    border-left-color: #2e7d32;
+}
+
+.text-danger {
+    border-left-color: #c62828;
+}
+        footer {
+            background: lch(78.71% 81.56 81.89);
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg main-nav shadow-sm">
+    <div class="container-fluid">
+
+        <!-- Brand -->
+        <a class="navbar-brand fw-bold" href="{{ url_for('citizen_home') }}">
+            Civic<span class="text-success">Care</span>
+        </a>
+
+        <!-- Mobile Toggle -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#citizenNav" aria-controls="citizenNav"
+                aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Center Navigation -->
+        <div class="collapse navbar-collapse" id="citizenNav">
+            <ul class="navbar-nav mx-auto text-center">
+
+                <li class="nav-item">
+                    <a class="nav-link fw-semibold" href="{{ url_for('citizen_home') }}">
+                        <i class="bi bi-house-door me-1"></i> Home
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link fw-semibold" href="{{ url_for('register_complaint') }}">
+                        <i class="bi bi-megaphone me-1"></i> Raise Complaint
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link fw-semibold" href="{{ url_for('track_complaint') }}">
+                        <i class="bi bi-search me-1"></i> Track Complaint
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link fw-semibold" href="{{ url_for('my_complaints') }}">
+                        <i class="bi bi-list-check me-1"></i> My Complaints
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link fw-semibold" href="{{ url_for('citizen_profile') }}">
+                        <i class="bi bi-person-lines-fill me-1"></i> Profile
+                    </a>
+                </li>
+
+            </ul>
+
+            <!-- Right User Info -->
+            <div class="d-flex align-items-center gap-3">
+                <span class="text-white fw-semibold">
+                    <i class="bi bi-person-circle me-1"></i>
+                    {{ session['username'] }}
+                </span>
+
+                <a href="{{ url_for('logout') }}" class="btn btn-light btn-sm px-3">
+                    Logout
+                </a>
+            </div>
+        </div>
+
+    </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<div class="container py-5">
+
+    <!-- PAGE TITLE -->
+    <div class="text-center mb-4">
+        <h4 class="fw-bold text-success">Track Your Complaint</h4>
+        <p class="text-muted">Enter your Complaint ID to view current status</p>
+    </div>
+
+    <!-- SEARCH FORM -->
+    <div class="card shadow-sm p-4 mb-4">
+        <form method="post">
+            <div class="row g-3 align-items-end">
+
+                <div class="col-md-8">
+                    <label class="form-label fw-semibold">Complaint ID *</label>
+                    <input type="text"
+                           name="complaint_id"
+                           class="form-control"
+                           placeholder="Ex: CMP202600123"
+                           required>
+                </div>
+
+                <div class="col-md-4 d-grid">
+                    <button class="btn btn-success">
+                        <i class="bi bi-search me-1"></i> Track Complaint
+                    </button>
+                </div>
+
+            </div>
+        </form>
+    </div>
+
+    {% if complaint %}
+    <!-- COMPLAINT DETAILS -->
+    <div class="card shadow-sm p-4 mb-4">
+
+        <h5 class="fw-semibold mb-3">
+            Complaint Details
+            <span class="badge bg-success ms-2">{{ complaint.status }}</span>
+        </h5>
+
+        <div class="row mb-2">
+            <div class="col-md-4 fw-semibold">Complaint ID</div>
+            <div class="col-md-8">{{ complaint.complaint_id }}</div>
+        </div>
+
+        <div class="row mb-2">
+            <div class="col-md-4 fw-semibold">Category</div>
+            <div class="col-md-8">{{ complaint.category }}</div>
+        </div>
+
+        <div class="row mb-2">
+            <div class="col-md-4 fw-semibold">Department</div>
+            <div class="col-md-8">{{ complaint.department }}</div>
+        </div>
+
+        <div class="row mb-2">
+            <div class="col-md-4 fw-semibold">Priority</div>
+            <div class="col-md-8">
+                <span class="badge bg-danger">{{ complaint.priority }}</span>
+            </div>
+        </div>
+
+        <div class="row mb-2">
+            <div class="col-md-4 fw-semibold">Description</div>
+            <div class="col-md-8">{{ complaint.description }}</div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4 fw-semibold">Registered On</div>
+            <div class="col-md-8">{{ complaint.created_at }}</div>
+        </div>
+    </div>
+
+    <!-- PROGRESS BAR -->
+    <div class="card shadow-sm p-4 mb-4">
+        <h5 class="fw-semibold mb-3">Complaint Progress</h5>
+
+        <div class="progress" style="height: 25px;">
+            <div class="progress-bar bg-success progress-bar-striped progress-bar-animated"
+                 style="width: {{ progress }}%">
+                {{ progress }}%
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between mt-2 small fw-semibold">
+            <span>Registered</span>
+            <span>In Progress</span>
+            <span>Resolved</span>
+        </div>
+    </div>
+
+    <!-- STATUS TIMELINE -->
+    <div class="card shadow-sm p-4">
+    <h5 class="fw-semibold mb-3">Status Timeline</h5>
+
+    <ul class="list-group list-group-flush">
+
+        <!-- Registered -->
+        <li class="list-group-item">
+            📝 Complaint Registered
+            <div class="small text-muted">{{ complaint.created_at }}</div>
+        </li>
+
+        <!-- Assigned / In Progress -->
+        {% if complaint.status == 1 or complaint.status == 2 %}
+        <li class="list-group-item">
+            🔄 Assigned & Under Review
+        </li>
+        {% endif %}
+
+        <!-- Resolved -->
+        {% if complaint.status == 2 %}
+        <li class="list-group-item text-success">
+            ✔ Complaint Resolved
+            <div class="small text-muted">{{ complaint.updated_at }}</div>
+        </li>
+        {% endif %}
+
+        <!-- Rejected -->
+        {% if complaint.status == -1 %}
+        <li class="list-group-item text-danger">
+            ❌ Complaint Rejected
+            {% if complaint.ai_reject_reason %}
+            <div class="small text-muted mt-1">
+                Reason: {{ complaint.ai_reject_reason }}
+            </div>
+            {% endif %}
+        </li>
+        {% endif %}
+
+    </ul>
+</div>
+    {% else %}
+
+<!-- ❌ COMPLAINT NOT FOUND -->
+<div class="card shadow-sm border-0 p-5 text-center mt-4">
+
+    <div class="mb-3">
+        <i class="bi bi-search text-warning" style="font-size: 3rem;"></i>
+    </div>
+
+    <h5 class="fw-bold text-danger mb-2">
+        Complaint Not Found
+    </h5>
+
+    <p class="text-muted mb-3">
+        We could not locate any complaint with the provided details.
+        Please verify the <strong>Complaint ID</strong> or registered
+        <strong>mobile number</strong> and try again.
+    </p>
+
+    <div class="alert alert-light border text-start mx-auto" style="max-width: 520px;">
+        <ul class="mb-0 small">
+            <li>Ensure the Complaint ID is entered correctly</li>
+            <li>Complaint IDs are case-sensitive</li>
+            <li>Try tracking without mobile number</li>
+            <li>Recently registered complaints may take a few minutes to appear</li>
+        </ul>
+    </div>
+
+    <div class="mt-4">
+        <a href="{{ url_for('track_complaint') }}" class="btn btn-success me-2">
+            <i class="bi bi-arrow-repeat me-1"></i> Try Again
+        </a>
+
+        <a href="/" class="btn btn-outline-secondary">
+            <i class="bi bi-house me-1"></i> Go Home
+        </a>
+    </div>
+
+</div>
+    {% endif %}
+
+</div>
+
+
+
+<!-- FOOTER -->
+<footer class="text-center py-3 mt-5">
+    © Government of Tamil Nadu | CivicCare Complaint Management System
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

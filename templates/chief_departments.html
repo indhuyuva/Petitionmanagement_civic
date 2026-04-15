@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Chief Officer Dashboard | CivicCare</title>
+
+<!-- Bootstrap & Icons -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+<style>
+:root{
+    --primary:#1f6f63;
+    --accent:#ffb703;
+    --bg:#f4f7f6;
+    --card:#ffffff;
+}
+
+body{
+    background:var(--bg);
+    font-family:"Segoe UI", sans-serif;
+}
+
+/* Sidebar */
+.sidebar{
+    width:260px;
+    height:100vh;
+    background:var(--primary);
+    color:#fff;
+    position:fixed;
+    padding:20px 10px;
+}
+.sidebar h4{
+    color:var(--accent);
+    font-weight:600;
+    margin-bottom:30px;
+}
+.sidebar a{
+    display:block;
+    padding:12px 20px;
+    color:#eaf4f4;
+    text-decoration:none;
+    border-left:4px solid transparent;
+}
+.sidebar a:hover,
+.sidebar a.active{
+    background:rgba(255,255,255,0.12);
+    border-left:4px solid var(--accent);
+}
+
+/* Main */
+.content{
+    margin-left:270px;
+    padding:30px;
+}
+
+/* Cards */
+.stat-card{
+    background:var(--card);
+    border-radius:14px;
+    padding:20px;
+    box-shadow:0 8px 20px rgba(0,0,0,.08);
+}
+.stat-card i{
+    font-size:28px;
+}
+.stat-title{
+    font-size:14px;
+    color:#6c757d;
+}
+.stat-value{
+    font-size:28px;
+    font-weight:700;
+}
+
+/* Table */
+.dashboard-card{
+    background:var(--card);
+    border-radius:16px;
+    padding:20px;
+    box-shadow:0 8px 20px rgba(0,0,0,.08);
+}
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <h4><i class="fa fa-building-columns"></i> CivicCare</h4>
+
+    <a href="/chief_dashboard" >
+        <i class="fa fa-gauge me-2"></i> Dashboard
+    </a>
+
+    <!-- <a href="/chief_complaints">
+        <i class="fa fa-list-check me-2"></i> All Complaints
+    </a> -->
+
+    <a href="/chief_departments" class="active">
+        <i class="fa fa-sitemap me-2"></i> Departments
+    </a>
+
+    <a href="/chief_reports">
+        <i class="fa fa-chart-line me-2"></i> Reports
+    </a>
+
+    <hr>
+    <a href="/logout" class="text-warning">
+        <i class="fa fa-sign-out-alt me-2"></i> Logout
+    </a>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="content">
+
+<!-- Welcome -->
+<div class="mb-4">
+    <h3 class="fw-bold">
+        Welcome, {{ chief_name }} 👋
+        <small class="text-muted fs-6 d-block mt-1">
+            Chief Officer – Municipality Administration
+        </small>
+    </h3>
+    
+</div>
+<hr>
+<!-- STATS -->
+<!-- DEPARTMENT OVERVIEW -->
+<div class="mb-4">
+    <h3 class="fw-bold">
+        Department & Officers Overview
+    </h3>
+    <p class="text-muted mb-0">
+        View municipality officers and department heads across all departments.
+    </p>
+</div>
+
+<!-- MUNICIPALITY OFFICERS TABLE -->
+<div class="dashboard-card mb-4">
+    <h5 class="fw-bold mb-3">
+        <i class="fa fa-users me-2 text-primary"></i>Municipality Officers
+    </h5>
+
+    <table class="table table-hover align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>#</th>
+                <th>Officer Name</th>
+                <th>email</th>
+                <th>Contact</th>
+                <th>Username</th>
+                
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for o in municipal_officers %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ o.name }}</td>
+                <td>{{ o.email }}</td>
+                <td>{{ o.phone }}</td>
+                <td>{{ o.username }}</td>
+                
+                <td>
+                    <span class="badge bg-success">Active</span>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- DEPARTMENT HEADS TABLE -->
+<div class="dashboard-card">
+    <h5 class="fw-bold mb-3">
+        <i class="fa fa-user-tie me-2 text-warning"></i>Department Heads
+    </h5>
+
+    <table class="table table-hover align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>#</th>
+                <th>Head Name</th>
+                <th>email</th>
+                <th>Contact</th>
+                <th>Username</th>
+                
+                <th>status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for d in department_heads %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ d.name }}</td>
+                <td>{{ d.email }}</td>
+                <td>{{ d.phone }}</td>
+                <td>{{ d.username }}</td>
+                
+                <td>
+                     
+                    <span class="badge bg-success">Active</span>
+            
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
